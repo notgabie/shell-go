@@ -37,7 +37,7 @@ func executeCommand(command string) bool {
 	}
 	os.Exit(exitCode)
 	case "echo":
-		printPrompt(strings.Join(args[1:], " "))
+		fmt.Println(strings.Join(args[1:], " "))
 	default:
 		fmt.Println(args[0] + ": command not found")
 	}

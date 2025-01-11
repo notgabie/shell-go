@@ -10,7 +10,6 @@ import (
 
 const (
 	prompt = "$ "
-	exitCommand = "exit"
 )
 
 func printPrompt(input ...interface{}) {
@@ -29,7 +28,7 @@ func executeCommand(command string) bool {
 	}
 
 	switch args[0] {
-	case exitCommand:
+	case "exit":
 		exitCode := 0
 		if len(args) > 1 {
 			if code, err := strconv.Atoi(args[1]); err == nil {
@@ -37,6 +36,8 @@ func executeCommand(command string) bool {
 			}
 	}
 	os.Exit(exitCode)
+	case "echo":
+		printPrompt(strings.Join(args[1:], " "))
 	default:
 		fmt.Println(args[0] + ": command not found")
 	}

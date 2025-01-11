@@ -12,6 +12,18 @@ const (
 	prompt = "$ "
 )
 
+type CommandInfo struct {
+	Name string
+	Type string
+	Description string
+}
+
+var commands = map[string]CommandInfo{
+	"exit": {Name: "exit", Type: "builtin", Description: "Exit the shell"},
+	"echo": {Name: "echo", Type: "builtin", Description: "Print the arguments to the standard output"},
+	"type": {Name: "type", Type: "builtin", Description: "Display information about command type"},
+}
+
 func printPrompt(input ...interface{}) {
 	if len(input) == 0 {
 		fmt.Print(prompt)
@@ -38,6 +50,31 @@ func executeCommand(command string) bool {
 	os.Exit(exitCode)
 	case "echo":
 		fmt.Println(strings.Join(args[1:], " "))
+
+	case "type":
+		if len(args) < 2 {
+			fmt.Println("type: missing argument")
+		} else {
+			command := args[1]
+			if query, ok := commands[command]; ok {
+				fmt.Println(query.Name + " is a shell " + query.Type)
+			} else {
+				fmt.Println(command + ": not found")
+			}
+		}
+
+	case "man":
+		if len(args) < 2 {
+			fmt.Println("man: missing argument")
+		} else {
+			command := args[1]
+			if query, ok := commands[command]; ok {
+				fmt.Println(query.Name + ": " + query.Description)
+			} else {
+				fmt.Println(command + ": not found")
+			}
+		}
+
 	default:
 		fmt.Println(args[0] + ": command not found")
 	}

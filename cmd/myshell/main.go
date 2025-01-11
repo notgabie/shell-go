@@ -11,7 +11,7 @@ var _ = fmt.Fprint
 
 func main() {
 	for {
-		fmt.Print("myshell> ")
+		fmt.Print("$> ")
 		command, err := bufio.NewReader(os.Stdin).ReadString('\n')
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error reading input:", err)

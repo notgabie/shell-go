@@ -3,10 +3,9 @@ package commands
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
-	"path/filepath"
 	"strings"
-
 )
 
 func ExecuteCommand(command string) bool {
@@ -35,7 +34,7 @@ func ExecuteCommand(command string) bool {
 			command := args[1]
 			if query, ok := CommandRegistry[command]; ok {
 				fmt.Println(query.Name + " is a " + query.Type)
-			} else if file := isExecutable(command); file != "" {
+			} else if file := findExecutable(command); file != "" {
 				fmt.Println(command + " is " + file) 
 			} else {
 				fmt.Println(command + ": not found")
@@ -55,20 +54,29 @@ func ExecuteCommand(command string) bool {
 		}
 
 	default:
-		fmt.Println(args[0] + ": command not found")
+		runExecutable(args[0], args[1:])
 	}
 	return true
 }
 
-func isExecutable(query string) string {
-	path := os.Getenv("PATH")
-	dirs := strings.Split(path, ":")
-
-	for _, dir := range dirs {
-		file := filepath.Join(dir, query)
-		if _, err := os.Stat(file); err == nil {
-			return file
-		}
+func findExecutable(query string) string {
+	if path, err := exec.LookPath(query); err == nil {
+		return path
 	}
 	return ""
+}
+
+func runExecutable(file string, args []string) {
+	executable := findExecutable(file)
+	if executable == "" {
+		fmt.Println(file + ": command not found")
+		
+	cmd := exec.Command(executable, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Error executing command:", err)
+	}
+}
 }

@@ -70,13 +70,13 @@ func runExecutable(file string, args []string) {
 	executable := findExecutable(file)
 	if executable == "" {
 		fmt.Println(file + ": command not found")
-		
+
 	cmd := exec.Command(executable, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Println("Error executing command:", err)
+		fmt.Println("Error executing command: ", err)
 	}
 }
 }

@@ -36,8 +36,6 @@ func ExecuteCommand(command string) bool {
 				fmt.Println(query.Name + " is a " + query.Type)
 			} else if file := findExecutable(command); file != "" {
 				fmt.Println(command + " is " + file) 
-			} else {
-				fmt.Println(command + ": not found")
 			}
 		}
 
@@ -48,8 +46,6 @@ func ExecuteCommand(command string) bool {
 			command := args[1]
 			if query, ok := CommandRegistry[command]; ok {
 				fmt.Println(query.Name + ": " + query.Description)  
-			} else {
-				fmt.Println(command + ": not found")
 			}
 		}
 
@@ -62,21 +58,20 @@ func ExecuteCommand(command string) bool {
 func findExecutable(query string) string {
 	if path, err := exec.LookPath(query); err == nil {
 		return path
+	} else {
+		fmt.Println(query + ": not found")
 	}
 	return ""
 }
 
 func runExecutable(file string, args []string) {
 	executable := findExecutable(file)
-	if executable == "" {
-		fmt.Println(file + ": command not found")
+	dirs := strings.Split(executable, "/")
+	executable = dirs[len(dirs)-1]
 
 	cmd := exec.Command(executable, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println("Error executing command: ", err)
-	}
-}
+	cmd.Run()
+	
 }

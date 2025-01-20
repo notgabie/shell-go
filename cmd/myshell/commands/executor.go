@@ -49,6 +49,13 @@ func ExecuteCommand(command string) bool {
 			}
 		}
 
+	case "pwd":
+		if wd, err := os.Getwd(); err == nil {
+			fmt.Println(wd)
+		} else {
+			fmt.Println("pwd: error getting working directory:", err)
+		}
+
 	default:
 		runExecutable(args[0], args[1:])
 	}

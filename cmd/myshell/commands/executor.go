@@ -87,7 +87,7 @@ func runExecutable(file string, args []string) {
 }
 
 func changeDirectory(dir string) bool {
-    // If dir variable is not provided, it defaults to the shell's HOME environment variable
+    // If dir variable is not provided it defaults to the shell's HOME environment variable. Alternatively if the user provides a tilde (~), that represents the HOME directory
     if dir == "" || dir == "~" {
         dir = os.Getenv("HOME")
     }

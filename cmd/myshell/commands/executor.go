@@ -16,6 +16,14 @@ func ExecuteCommand(command string) bool {
 		return true
 	}
 
+	if strings.HasPrefix(args[1], "'") && strings.HasSuffix(args[len(args)-1], "'") {
+		quotedString := command[strings.Index(command, "'"):]
+		quotedString = strings.TrimPrefix(quotedString, "'")
+		quotedString = strings.TrimSuffix(quotedString, "'")
+		quotedString = strings.Replace(quotedString, "'", "", -1)
+		args = append(args[:1], quotedString)
+	}
+
 	switch args[0] {
 	case "exit":
 		exitCode := 0
@@ -92,7 +100,7 @@ func changeDirectory(dir string) bool {
         dir = os.Getenv("HOME")
     }
 
-    // Assign cdPath to the CDPATH environment variable if the dir variable is not an absolute path
+    // If the dir variable is not an absolute path, store the value of CDPATH in the cdPath variable
     if !strings.HasPrefix(dir, "/") {
         cdPath := os.Getenv("CDPATH")
         // If the CDPATH environment variable is not empty, split the variable by colon and iterate over the paths to look for the dir variable
@@ -105,6 +113,7 @@ func changeDirectory(dir string) bool {
 				}
                 // Join the path and dir variables to create a full path
                 fullPath := filepath.Join(path, dir)
+				// Clean the path to remove any redundant separators
                 fullPath = filepath.Clean(fullPath)
                 //fmt.Println("Checking path:", fullPath)
                 if _, err := os.Stat(fullPath); err == nil {

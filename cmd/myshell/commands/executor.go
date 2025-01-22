@@ -88,7 +88,7 @@ func runExecutable(file string, args []string) {
 
 func changeDirectory(dir string) bool {
     // If dir variable is not provided, it defaults to the shell's HOME environment variable
-    if dir == "" {
+    if dir == "" || dir == "~" {
         dir = os.Getenv("HOME")
     }
 
@@ -100,12 +100,9 @@ func changeDirectory(dir string) bool {
             paths := strings.Split(cdPath, ":")
             for _, path := range paths {
                 // When CDPATH includes an empty string, it means the current directory, so we set the path variable to "."
-                switch path {
-                case "":
+                if path == ""{
                     path = "."
-                case "~":
-                    path = os.Getenv("HOME")
-                }
+				}
                 // Join the path and dir variables to create a full path
                 fullPath := filepath.Join(path, dir)
                 fullPath = filepath.Clean(fullPath)

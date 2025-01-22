@@ -11,4 +11,5 @@ var CommandRegistry = map[string]CommandInfo{
 	"echo": {Name: "echo", Type: "shell builtin", Description: "Print the arguments to the standard output"},
 	"type": {Name: "type", Type: "shell builtin", Description: "Display information about command type"},
 	"pwd": {Name: "pwd", Type: "shell builtin", Description: "Print the current working directory"},
+	"cd": {Name: "cd", Type: "shell builtin", Description: "Change the current working directory"},
 }

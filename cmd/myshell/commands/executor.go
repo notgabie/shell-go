@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -56,6 +57,9 @@ func ExecuteCommand(command string) bool {
 			fmt.Println("pwd: error getting working directory:", err)
 		}
 
+	case "cd":
+		changeDirectory(args[1])
+
 	default:
 		runExecutable(args[0], args[1:])
 	}
@@ -80,5 +84,56 @@ func runExecutable(file string, args []string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
-	
+}
+
+func changeDirectory(dir string) bool {
+    // If dir variable is not provided, it defaults to the shell's HOME environment variable
+    if dir == "" {
+        dir = os.Getenv("HOME")
+    }
+
+    // Assign cdPath to the CDPATH environment variable if the dir variable is not an absolute path
+    if !strings.HasPrefix(dir, "/") {
+        cdPath := os.Getenv("CDPATH")
+        // If the CDPATH environment variable is not empty, split the variable by colon and iterate over the paths to look for the dir variable
+        if cdPath != "" {
+            paths := strings.Split(cdPath, ":")
+            for _, path := range paths {
+                // When CDPATH includes an empty string, it means the current directory, so we set the path variable to "."
+                switch path {
+                case "":
+                    path = "."
+                case "~":
+                    path = os.Getenv("HOME")
+                }
+                // Join the path and dir variables to create a full path
+                fullPath := filepath.Join(path, dir)
+                fullPath = filepath.Clean(fullPath)
+                //fmt.Println("Checking path:", fullPath)
+                if _, err := os.Stat(fullPath); err == nil {
+                    dir = fullPath
+                    break
+                }
+            }
+        }
+    }
+
+    // Change directory
+    oldPwd, _ := os.Getwd()
+    if err := os.Chdir(dir); err != nil {
+        fmt.Println("cd: " + dir + ": No such file or directory")
+        return false
+    }
+
+    // Update PWD and OLDPWD environment variables
+    newPwd, _ := os.Getwd()
+    os.Setenv("PWD", newPwd)
+    os.Setenv("OLDPWD", oldPwd)
+
+    // Print the new directory if a non-empty CDPATH directory was used
+    if cdPath := os.Getenv("CDPATH"); cdPath != "" && !strings.HasPrefix(dir, "/") {
+        fmt.Println(newPwd)
+    }
+
+    return true
 }

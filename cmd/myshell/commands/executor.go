@@ -10,18 +10,10 @@ import (
 )
 
 func ExecuteCommand(command string) bool {
-	args := strings.Fields(command)
+	args := parseCommand(command)
 
 	if len(args) == 0 {
 		return true
-	}
-
-	if strings.HasPrefix(args[1], "'") && strings.HasSuffix(args[len(args)-1], "'") {
-		quotedString := command[strings.Index(command, "'"):]
-		quotedString = strings.TrimPrefix(quotedString, "'")
-		quotedString = strings.TrimSuffix(quotedString, "'")
-		quotedString = strings.Replace(quotedString, "'", "", -1)
-		args = append(args[:1], quotedString)
 	}
 
 	switch args[0] {
@@ -142,4 +134,32 @@ func changeDirectory(dir string) bool {
     }
 
     return true
+}
+
+func parseCommand(command string) []string {
+	var args []string
+	var buffer strings.Builder
+	inSingleQuote := false
+
+	for i := 0; i < len(command); i++ {
+		char := command[i]
+
+		switch {
+		case char == '\'':
+			inSingleQuote = !inSingleQuote
+		case char == ' ' && !inSingleQuote:
+			if buffer.Len() > 0 {
+				args = append(args, buffer.String())
+				buffer.Reset()
+			}
+		default:
+			buffer.WriteByte(char)
+		}
+	}
+
+	if buffer.Len() > 0 {
+		args = append(args, buffer.String())
+	}
+
+	return args
 }
